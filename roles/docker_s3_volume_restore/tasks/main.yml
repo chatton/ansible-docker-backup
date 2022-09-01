@@ -18,7 +18,7 @@
 
 - name: Create directories for /tmp file
   file:
-    path: '{{ item.s3_key | dirname }}'
+    path: '/tmp/{{ item.s3_key | dirname }}'
     state: directory
     mode: '0755'
   with_items: '{{ docker_volume_s3_restores }}'
