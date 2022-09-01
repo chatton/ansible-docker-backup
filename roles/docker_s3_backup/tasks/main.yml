@@ -42,7 +42,7 @@
     s3_url: "{{ docker_s3_backup_aws_s3_url }}"
     bucket: "{{ docker_s3_backup_aws_s3_bucket }}"
     object: "{{ item.Name }}/{{ item.Name }}-{{ backup_time }}.tar.gz"
-    src: {{ docker_s3_backup_host_backup_directory }}/{{ item.Name }}-{{ backup_time }}.tar.gz
+    src: "{{ docker_s3_backup_host_backup_directory }}/{{ item.Name }}-{{ backup_time }}.tar.gz"
     aws_access_key: "{{ docker_s3_backup_aws_s3_aws_access_key }}"
     aws_secret_key: "{{ docker_s3_backup_aws_s3_aws_secret_key }}"
     region: "{{ docker_s3_backup_aws_s3_region }}"
