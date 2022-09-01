@@ -66,6 +66,6 @@
 
 - name: Remove uploaded files
   file:
-    path: '/tmp/{{ item.s3_key}}'
+    path: '/tmp/{{ item.s3_key }}'
     state: absent
   with_items: '{{ docker_volume_s3_restores }}'
