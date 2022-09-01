@@ -10,7 +10,7 @@
   with_items: "{{ docker_volume_s3_restores }}"
 
 - name: Determine if backup is needed.
-  set_fact: should_perform_backup="{{ docker_volume_s3_force == true or volume_out.changed == true }}"
+  set_fact: should_perform_backup="{{ docker_s3_volume_restore_force == true or volume_out.changed == true }}"
 
 - name: End play as no backup is needed.
   meta: end_play

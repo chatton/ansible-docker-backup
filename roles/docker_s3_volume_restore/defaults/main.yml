@@ -4,7 +4,7 @@
 # forces a revert to the volume.
 docker_s3_volume_restore_force: false
 docker_s3_volume_restores: []
-#docker_s3_volume_restores:
+#docker_volume_s3_restores:
 #  - volume_name: "linkding_data"
 #    s3_key: "linkding_data/linkding_data-2022-09-01T21:32:54Z.tar.gz"
 
