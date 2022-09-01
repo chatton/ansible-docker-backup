@@ -10,7 +10,6 @@ docker_s3_volume_restores: []
 
 docker_s3_volume_restore_aws_s3_region: "us-east-1"
 docker_s3_volume_restore_aws_s3_bucket: "backups"
-docker_s3_volume_restore_host_backup_directory: ""
 docker_s3_volume_restore_aws_s3_url: ""
 docker_s3_volume_restore_aws_s3_aws_access_key: ""
 docker_s3_volume_restore_aws_s3_aws_secret_key: ""

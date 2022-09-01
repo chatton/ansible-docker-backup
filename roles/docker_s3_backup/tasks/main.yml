@@ -28,7 +28,7 @@
     state: started
     volumes:
       - "{{ item.Name }}:/data"
-      - "{{ docker_s3_backup_host_backup_directory }}":/backups
+      - "{{ docker_s3_backup_host_backup_directory }}:/backups
   with_items: "{{ volume_mounts }}"
 
 - name: Start the container
