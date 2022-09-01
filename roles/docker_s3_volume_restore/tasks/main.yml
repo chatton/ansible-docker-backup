@@ -16,6 +16,13 @@
   meta: end_play
   when: not should_perform_backup
 
+- name: Create directories for /tmp file
+  file:
+    path: '{{ item.s3_key | dirname }}'
+    state: directory
+    mode: '0755'
+  with_items: '{{ docker_volume_s3_restores }}'
+
 - name: Download archive from S3
   amazon.aws.aws_s3:
     bucket: "{{ docker_s3_volume_restore_aws_s3_bucket }}"
@@ -56,3 +63,9 @@
       - "{{ item.volume_name }}:/data"
       - /tmp:/tmp
   with_items: "{{ docker_volume_s3_restores }}"
+
+- name: Remove uploaded files
+  file:
+    path: '/tmp/{{ item.s3_key}}'
+    state: absent
+  with_items: '{{ docker_volume_s3_restores }}'
