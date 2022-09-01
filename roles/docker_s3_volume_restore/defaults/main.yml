@@ -1,0 +1,17 @@
+---
+# defaults file for docker_s3_volume_restore
+
+# forces a revert to the volume.
+docker_s3_volume_restore_force: false
+docker_s3_volume_restores: []
+#docker_s3_volume_restores:
+#  - volume_name: "linkding_data"
+#    s3_key: "linkding_data/linkding_data-2022-09-01T21:32:54Z.tar.gz"
+
+docker_s3_volume_restore_aws_s3_region: "us-east-1"
+docker_s3_volume_restore_aws_s3_bucket: "backups"
+docker_s3_volume_restore_host_backup_directory: ""
+docker_s3_volume_restore_aws_s3_url: ""
+docker_s3_volume_restore_aws_s3_aws_access_key: ""
+docker_s3_volume_restore_aws_s3_aws_secret_key: ""
+docker_s3_volume_restore_aws_s3_permissions: []
