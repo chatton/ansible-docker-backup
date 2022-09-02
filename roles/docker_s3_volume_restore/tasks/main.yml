@@ -23,7 +23,6 @@
     mode: list
     prefix: "{{ item.volume_name }}/{{ item.volume_name }}"
     bucket: "{{ docker_s3_volume_restore_aws_s3_bucket }}"
-    object: "{{ item.s3_key }}"
     aws_access_key: "{{ docker_s3_volume_restore_aws_s3_aws_access_key }}"
     aws_secret_key: "{{ docker_s3_volume_restore_aws_s3_aws_secret_key }}"
     region: "{{ docker_s3_volume_restore_aws_s3_region }}"
