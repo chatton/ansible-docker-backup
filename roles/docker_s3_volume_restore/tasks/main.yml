@@ -55,9 +55,11 @@
     - "{{ volume_names }}"
     - "{{ container_s3_keys }}"
 
-- set_fact:
-    docker_volume_s3_restores_new: "{{ docker_volume_s3_restores }}"
-  when: not docker_s3_volume_restore_latest_s3_key
+- debug: msg="{{ docker_volume_s3_restores_new }}"
+
+#- set_fact:
+#    docker_volume_s3_restores_new: "{{ docker_volume_s3_restores }}"
+#  when: not docker_s3_volume_restore_latest_s3_key
 
 - debug: msg="{{ docker_volume_s3_restores_new }}"
 
