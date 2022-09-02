@@ -48,6 +48,9 @@
 #- set_fact: docker_volume_s3_restores_new="{{ [] }}"
 #  when: docker_s3_volume_restore_latest_s3_key
 
+- debug: volume_names="{{ volume_names }}"
+- debug: container_s3_keys="{{ container_s3_keys }}"
+
 - set_fact:
     docker_volume_s3_restores_new: "{{ docker_volume_s3_restores_new | default([]) + [ {'volume_name': item.0, 's3_key': item.1} ] }}"
   when: docker_s3_volume_restore_latest_s3_key
