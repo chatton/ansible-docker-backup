@@ -16,56 +16,80 @@
   meta: end_play
   when: not should_perform_backup
 
-- name: Create directories for /tmp file
-  file:
-    path: '/tmp/{{ item.s3_key | dirname }}'
-    state: directory
-    mode: '0755'
-  with_items: '{{ docker_volume_s3_restores }}'
-
-- name: Download archive from S3
+# try and find latest volume based on the name.
+- name: Find relevant volume(s) in S3
   amazon.aws.aws_s3:
+    bucket: "{{ docker_s3_volume_restore_aws_s3_bucket }}"
+    mode: list
+    prefix: "{{ item.Name }}/{{ item.Name }}"
     bucket: "{{ docker_s3_volume_restore_aws_s3_bucket }}"
     object: "{{ item.s3_key }}"
     aws_access_key: "{{ docker_s3_volume_restore_aws_s3_aws_access_key }}"
     aws_secret_key: "{{ docker_s3_volume_restore_aws_s3_aws_secret_key }}"
     region: "{{ docker_s3_volume_restore_aws_s3_region }}"
     s3_url: "{{ docker_s3_volume_restore_aws_s3_url }}"
-    mode: get
-    dest: "/tmp/{{ item.s3_key }}"
-  register: get_out
-  with_items: "{{ docker_volume_s3_restores }}"
+  register: s3_list_output
+  with_items: "{{ volume_mounts }}"
 
-- name: Remove contents of volumes
-  community.docker.docker_container:
-    name: "restore-container-{{ item.volume_name }}-{{ 10 | random }}"
-    image: ubuntu
-    command: "rm -rf ./*"
-    auto_remove: true
-    detach: false # block until this container exists.
-    state: started
-    # start inside the directory we want to wipe
-    working_dir: "/data"
-    volumes:
-      - "{{ item.volume_name }}:/data"
-  with_items: "{{ docker_volume_s3_restores }}"
+- debug: msg="{{ s3_list_output }}"
 
-- name: Restore contents of volumes
-  community.docker.docker_container:
-    name: "restore-container-{{ item.volume_name }}-{{ 10 | random }}"
-    image: ubuntu
-    # extract the tar into the volume.
-    command: "tar xvf /tmp/{{ item.s3_key }} -C /data --strip-components 1"
-    auto_remove: true
-    detach: false # block until this container exists.
-    state: started
-    volumes:
-      - "{{ item.volume_name }}:/data"
-      - /tmp:/tmp
-  with_items: "{{ docker_volume_s3_restores }}"
+- name: Extract s3 keys for container
+  set_fact: container_s3_keys="{{ container_s3_keys | default([]) + [item.s3_keys | last] }}"
+  with_items: "{{ s3_list_output.results }}"
 
-- name: Remove uploaded files from /tmp
-  file:
-    path: '/tmp/{{ item.s3_key }}'
-    state: absent
-  with_items: '{{ docker_volume_s3_restores }}'
+- debug: msg="{{ container_s3_keys }}"
+
+#
+#- name: Create directories for /tmp file
+#  file:
+#    path: '/tmp/{{ item.s3_key | dirname }}'
+#    state: directory
+#    mode: '0755'
+#  with_items: '{{ docker_volume_s3_restores }}'
+#
+#- name: Download archive from S3
+#  amazon.aws.aws_s3:
+#    bucket: "{{ docker_s3_volume_restore_aws_s3_bucket }}"
+#    object: "{{ item.s3_key }}"
+#    aws_access_key: "{{ docker_s3_volume_restore_aws_s3_aws_access_key }}"
+#    aws_secret_key: "{{ docker_s3_volume_restore_aws_s3_aws_secret_key }}"
+#    region: "{{ docker_s3_volume_restore_aws_s3_region }}"
+#    s3_url: "{{ docker_s3_volume_restore_aws_s3_url }}"
+#    mode: get
+#    dest: "/tmp/{{ item.s3_key }}"
+#  register: get_out
+#  with_items: "{{ docker_volume_s3_restores }}"
+#
+#- name: Remove contents of volumes
+#  community.docker.docker_container:
+#    name: "restore-container-{{ item.volume_name }}-{{ 10 | random }}"
+#    image: ubuntu
+#    command: "rm -rf ./*"
+#    auto_remove: true
+#    detach: false # block until this container exists.
+#    state: started
+#    # start inside the directory we want to wipe
+#    working_dir: "/data"
+#    volumes:
+#      - "{{ item.volume_name }}:/data"
+#  with_items: "{{ docker_volume_s3_restores }}"
+#
+#- name: Restore contents of volumes
+#  community.docker.docker_container:
+#    name: "restore-container-{{ item.volume_name }}-{{ 10 | random }}"
+#    image: ubuntu
+#    # extract the tar into the volume.
+#    command: "tar xvf /tmp/{{ item.s3_key }} -C /data --strip-components 1"
+#    auto_remove: true
+#    detach: false # block until this container exists.
+#    state: started
+#    volumes:
+#      - "{{ item.volume_name }}:/data"
+#      - /tmp:/tmp
+#  with_items: "{{ docker_volume_s3_restores }}"
+#
+#- name: Remove uploaded files from /tmp
+#  file:
+#    path: '/tmp/{{ item.s3_key }}'
+#    state: absent
+#  with_items: '{{ docker_volume_s3_restores }}'
