@@ -21,7 +21,7 @@
   amazon.aws.aws_s3:
     bucket: "{{ docker_s3_volume_restore_aws_s3_bucket }}"
     mode: list
-    prefix: "{{ item.Name }}/{{ item.Name }}"
+    prefix: "{{ item.volume_name }}/{{ item.volume_name }}"
     bucket: "{{ docker_s3_volume_restore_aws_s3_bucket }}"
     object: "{{ item.s3_key }}"
     aws_access_key: "{{ docker_s3_volume_restore_aws_s3_aws_access_key }}"
@@ -29,7 +29,7 @@
     region: "{{ docker_s3_volume_restore_aws_s3_region }}"
     s3_url: "{{ docker_s3_volume_restore_aws_s3_url }}"
   register: s3_list_output
-  with_items: "{{ volume_mounts }}"
+  with_items: "{{ docker_volume_s3_restores }}"
 
 - debug: msg="{{ s3_list_output }}"
 
