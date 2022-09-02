@@ -3,10 +3,10 @@
 
 # the backup directory where backups are stored on the host machine.
 # these will be uploaded to S3.
-docker_s3_backup_aws_s3_region: "us-east-1"
-docker_s3_backup_aws_s3_bucket: "backups"
-docker_s3_backup_host_backup_directory: ""
-docker_s3_backup_aws_s3_url: ""
-docker_s3_backup_aws_s3_aws_access_key: ""
-docker_s3_backup_aws_s3_aws_secret_key: ""
-docker_s3_backup_aws_s3_permissions: []
+docker_backup_aws_s3_region: "us-east-1"
+docker_backup_aws_s3_bucket: "backups"
+docker_backup_host_backup_directory: ""
+docker_backup_aws_s3_url: ""
+docker_backup_aws_s3_aws_access_key: ""
+docker_backup_aws_s3_aws_secret_key: ""
+docker_backup_aws_s3_permissions: []
