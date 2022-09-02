@@ -17,7 +17,8 @@
   when: not should_perform_backup
 
 # try and find latest volume based on the name.
-- name: Find relevant volume(s) in S3
+- name: Find latest s3 version.
+  when: docker_s3_volume_restore_latest_s3_key
   amazon.aws.aws_s3:
     bucket: "{{ docker_s3_volume_restore_aws_s3_bucket }}"
     mode: list
@@ -37,6 +38,19 @@
   with_items: "{{ s3_list_output.results }}"
 
 - debug: msg="{{ container_s3_keys }}"
+
+- set_fact: docker_volume_s3_restores="{{ docker_volume_s3_restores | default([]) + [ {'volume_name': item.0.volume_name, 's3_key': item.1} ] }}"
+  with_together:
+    - "{{ docker_volume_s3_restores }}"
+    - "{{ container_s3_keys }}"
+
+- debug: msg="{{ docker_volume_s3_restores }}"
+
+#- set_fact:
+#    volume_details: "{{ volume_details |default([]) + [ {'mount': item.0, 's3_key': item.1} ] }}"
+#  with_together:
+#    - "{{ volume_mounts }}"
+#    - "{{ container_s3_keys }}"
 
 #
 #- name: Create directories for /tmp file
