@@ -6,7 +6,7 @@
   ansible.builtin.set_fact: backup_time="{{ ansible_date_time.iso8601 }}"
 
 - name: Install Python dependencies
-  pip:
+  ansible.builtin.pip:
     name:
       - docker
       - boto3
