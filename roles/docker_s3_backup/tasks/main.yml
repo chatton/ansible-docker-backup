@@ -3,7 +3,7 @@
 # https://docs.docker.com/storage/volumes/#backup-restore-or-migrate-data-volumes
 
 - name: Determine backup timestamp.
-  set_fact: backup_time="{{ ansible_date_time.iso8601 }}"
+  ansible.builtin.set_fact: backup_time="{{ ansible_date_time.iso8601 }}"
 
 - name: Stop a container
   community.docker.docker_container:
@@ -16,7 +16,7 @@
   register: result
 
 - name: Extract only the volume mounts (not bind mounts)
-  set_fact: volume_mounts="{{ result.container.Mounts | selectattr("Type", "equalto", "volume")}}"
+  ansible.builtin.set_fact: volume_mounts="{{ result.container.Mounts | selectattr("Type", "equalto", "volume") }}"
 
 - name: Create Backup of Container Volumes
   community.docker.docker_container:

@@ -10,10 +10,10 @@
   with_items: "{{ docker_volume_s3_restores }}"
 
 - name: Determine if backup is needed.
-  set_fact: should_perform_backup="{{ docker_s3_volume_restore_force == true or volume_out.changed == true }}"
+  ansible.builtin.set_fact: should_perform_backup="{{ docker_s3_volume_restore_force == true or volume_out.changed == true }}"
 
 - name: End play as no backup is needed.
-  meta: end_play
+  ansible.builtin.meta: end_play
   when: not should_perform_backup
 
 # try and find latest volume based on the name.
@@ -23,7 +23,6 @@
     bucket: "{{ docker_s3_volume_restore_aws_s3_bucket }}"
     mode: list
     prefix: "{{ item.volume_name }}/{{ item.volume_name }}"
-    bucket: "{{ docker_s3_volume_restore_aws_s3_bucket }}"
     aws_access_key: "{{ docker_s3_volume_restore_aws_s3_aws_access_key }}"
     aws_secret_key: "{{ docker_s3_volume_restore_aws_s3_aws_secret_key }}"
     region: "{{ docker_s3_volume_restore_aws_s3_region }}"
@@ -31,49 +30,36 @@
   register: s3_list_output
   with_items: "{{ docker_volume_s3_restores }}"
 
-- debug: msg="{{ s3_list_output }}"
+- name: Extract S3 keys for container.
   when: docker_s3_volume_restore_latest_s3_key
-
-- name: Extract s3 keys for container
-  when: docker_s3_volume_restore_latest_s3_key
-  set_fact: container_s3_keys="{{ container_s3_keys | default([]) + [item.s3_keys | last] }}"
+  ansible.builtin.set_fact: container_s3_keys="{{ container_s3_keys | default([]) + [item.s3_keys | last] }}"
   with_items: "{{ s3_list_output.results }}"
 
-- debug: msg="{{ container_s3_keys }}"
+- name: Extract volume names.
+  ansible.builtin.set_fact: volume_names="{{ docker_volume_s3_restores | map(attribute='volume_name') }}"
   when: docker_s3_volume_restore_latest_s3_key
 
-- set_fact: volume_names="{{ docker_volume_s3_restores | map(attribute='volume_name')  }}"
-  when: docker_s3_volume_restore_latest_s3_key
-  # remove existing values so we can determine the s3 key automatically/
-#- set_fact: docker_volume_s3_restores_new="{{ [] }}"
-#  when: docker_s3_volume_restore_latest_s3_key
-
-- debug: msg="volume_names={{ volume_names }}"
-- debug: msg="container_s3_keys={{ container_s3_keys }}"
-
-- set_fact:
+- name: Merge volume names and S3 keys.
+  ansible.builtin.set_fact:
     docker_volume_s3_restores_new: "{{ docker_volume_s3_restores_new | default([]) + [ {'volume_name': item.0, 's3_key': item.1} ] }}"
   when: docker_s3_volume_restore_latest_s3_key
   with_together:
     - "{{ volume_names }}"
     - "{{ container_s3_keys }}"
 
-- debug: msg="{{ docker_volume_s3_restores_new }}"
-
-- set_fact:
+- name: Set volumes to restore.
+  ansible.builtin.set_fact:
     docker_volume_s3_restores_new: "{{ docker_volume_s3_restores }}"
   when: not docker_s3_volume_restore_latest_s3_key
 
-- debug: msg="{{ docker_volume_s3_restores_new }}"
-
-- name: Create directories for /tmp file
-  file:
+- name: Create directories for /tmp file.
+  ansible.builtin.file:
     path: '/tmp/{{ item.s3_key | dirname }}'
     state: directory
     mode: '0755'
   with_items: '{{ docker_volume_s3_restores_new }}'
 
-- name: Download archive from S3
+- name: Download archive from S3.
   amazon.aws.aws_s3:
     bucket: "{{ docker_s3_volume_restore_aws_s3_bucket }}"
     object: "{{ item.s3_key }}"
@@ -86,7 +72,7 @@
   register: get_out
   with_items: "{{ docker_volume_s3_restores_new }}"
 
-- name: Remove contents of volumes
+- name: Remove contents of volumes.
   community.docker.docker_container:
     name: "restore-container-{{ item.volume_name }}-{{ 10 | random }}"
     image: ubuntu
@@ -115,7 +101,7 @@
   with_items: "{{ docker_volume_s3_restores_new }}"
 
 - name: Remove uploaded files from /tmp
-  file:
+  ansible.builtin.file:
     path: '/tmp/{{ item.s3_key }}'
     state: absent
   with_items: '{{ docker_volume_s3_restores_new }}'
