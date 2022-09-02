@@ -4,7 +4,7 @@ on:
   push:
 
 jobs:
-  lint:
+  e2e:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout the codebase
@@ -13,8 +13,8 @@ jobs:
       with:
         python-version: 3.8.9
     - name: Install dependencies
-      run: pip install -r requirements.txt
-    - name: Docker Compose
-      run: |
-        cp tests/docker-compose.yml .
-        docker-compose up -d
+      run: make deps
+    - name: Test Backup & Restore
+      run: make e2e
+      env:
+        VAULT_KEY: "${{ secrets.VAULT_KEY }}"
