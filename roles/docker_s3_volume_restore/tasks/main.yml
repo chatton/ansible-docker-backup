@@ -39,7 +39,7 @@
 
 - debug: msg="{{ container_s3_keys }}"
 #- set_fact: docker_volume_s3_restores="{{ [] }}"
-- set_fact: docker_volume_s3_restores="{{ docker_volume_s3_restores | default([]) }}"
+- set_fact: docker_volume_s3_restores="{{ docker_volume_s3_restores | default([]) + [ {'volume_name': item.0} ] }}"
 #  with_together:
 #    - "{{ docker_volume_s3_restores | map(attribute='volume_name') }}"
 #    - "{{ container_s3_keys }}"
