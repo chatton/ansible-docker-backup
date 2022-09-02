@@ -45,24 +45,28 @@
 - set_fact: volume_names="{{ docker_volume_s3_restores | map(attribute='volume_name')  }}"
   when: docker_s3_volume_restore_latest_s3_key
   # remove existing values so we can determine the s3 key automatically/
-- set_fact: docker_volume_s3_restores="{{ [] }}"
+- set_fact: docker_volume_s3_restores_new="{{ [] }}"
   when: docker_s3_volume_restore_latest_s3_key
 
 - set_fact:
-    docker_volume_s3_restores: "{{ docker_volume_s3_restores | default([]) + [ {'volume_name': item.0, 's3_key': item.1} ] }}"
+    docker_volume_s3_restores_new: "{{ docker_volume_s3_restores_new | default([]) + [ {'volume_name': item.0, 's3_key': item.1} ] }}"
   when: docker_s3_volume_restore_latest_s3_key
   with_together:
     - "{{ volume_names }}"
     - "{{ container_s3_keys }}"
 
-- debug: msg="{{ docker_volume_s3_restores }}"
+- set_fact:
+    docker_volume_s3_restores_new: "{{ docker_volume_s3_restores }}"
+  when: not docker_s3_volume_restore_latest_s3_key
+
+- debug: msg="{{ docker_volume_s3_restores_new }}"
 
 - name: Create directories for /tmp file
   file:
     path: '/tmp/{{ item.s3_key | dirname }}'
     state: directory
     mode: '0755'
-  with_items: '{{ docker_volume_s3_restores }}'
+  with_items: '{{ docker_volume_s3_restores_new }}'
 
 - name: Download archive from S3
   amazon.aws.aws_s3:
@@ -75,7 +79,7 @@
     mode: get
     dest: "/tmp/{{ item.s3_key }}"
   register: get_out
-  with_items: "{{ docker_volume_s3_restores }}"
+  with_items: "{{ docker_volume_s3_restores_new }}"
 
 - name: Remove contents of volumes
   community.docker.docker_container:
@@ -89,7 +93,7 @@
     working_dir: "/data"
     volumes:
       - "{{ item.volume_name }}:/data"
-  with_items: "{{ docker_volume_s3_restores }}"
+  with_items: "{{ docker_volume_s3_restores_new }}"
 
 - name: Restore contents of volumes
   community.docker.docker_container:
@@ -103,10 +107,10 @@
     volumes:
       - "{{ item.volume_name }}:/data"
       - /tmp:/tmp
-  with_items: "{{ docker_volume_s3_restores }}"
+  with_items: "{{ docker_volume_s3_restores_new }}"
 
 - name: Remove uploaded files from /tmp
   file:
     path: '/tmp/{{ item.s3_key }}'
     state: absent
-  with_items: '{{ docker_volume_s3_restores }}'
+  with_items: '{{ docker_volume_s3_restores_new }}'
