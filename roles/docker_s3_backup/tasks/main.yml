@@ -71,7 +71,7 @@
 
 - name: Copy Python Script
   ansible.builtin.copy:
-    src: determine-s3-keys-to-delete.py
+    src: scripts/determine-s3-keys-to-delete.py
     dest: determine-s3-keys-to-delete.py
 
 # TODO: do this in a more native way rather than a python script reading env vars.
