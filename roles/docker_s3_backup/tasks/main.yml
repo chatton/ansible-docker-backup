@@ -5,6 +5,8 @@
 - name: Determine backup timestamp.
   ansible.builtin.set_fact: backup_time="{{ ansible_date_time.iso8601 }}"
 
+- debug: msg="{{ 'test' | a_filter }}"
+
 - name: Install Python dependencies
   ansible.builtin.pip:
     name:
