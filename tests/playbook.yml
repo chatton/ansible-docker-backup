@@ -4,7 +4,6 @@
   become: true
 
   tasks:
-#    - debug: msg="{{ 'test' | a_filter }}"
   - name: Install Docker Module for Python
     pip:
       name:
