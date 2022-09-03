@@ -70,7 +70,7 @@
   with_items: "{{ volume_mounts }}"
 
 - name: Find keys to delete.
-  set_fact:
+  ansible.builtin.set_fact:
     s3_keys_to_delete: "{{ s3_list_outputs.results | map(attribute='s3_keys') | keep_last(docker_backup_retain_count) | flatten }}"
 
 - name: Delete old backups.
