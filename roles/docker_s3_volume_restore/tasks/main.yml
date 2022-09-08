@@ -35,21 +35,21 @@
   ansible.builtin.fail:
     msg: "There were no s3 backups found for {{ docker_backup_s3_volume.name }}"
 
-- name: Exit early if there are no backups.
-  when: s3_list_output.s3_keys | length == 0
-  ansible.builtin.meta: end_play
-
 - name: Extract S3 keys for container.
-  when: docker_backup_restore_latest_s3_key
+  when:
+    - docker_backup_restore_latest_s3_key
+    - s3_list_output.s3_keys | length > 0
   ansible.builtin.set_fact: container_s3_key="{{ s3_list_output.s3_keys | last }}"
 
 - name: Create directories for /tmp file.
+  when: s3_list_output.s3_keys | length > 0
   ansible.builtin.file:
     path: '/tmp/{{ container_s3_key | dirname }}'
     state: directory
     mode: '0755'
 
 - name: Download archive from S3.
+  when: s3_list_output.s3_keys | length > 0
   amazon.aws.aws_s3:
     bucket: "{{ docker_backup_aws_s3_bucket }}"
     object: "{{ container_s3_key }}"
@@ -62,6 +62,7 @@
   register: get_out
 
 - name: Remove contents of volumes.
+  when: s3_list_output.s3_keys | length > 0
   community.docker.docker_container:
     name: "restore-container-{{ docker_backup_s3_volume.name }}-{{ 10 | random }}"
     image: ubuntu
@@ -75,6 +76,7 @@
       - "{{ docker_backup_s3_volume.name }}:/data"
 
 - name: Restore contents of volumes
+  when: s3_list_output.s3_keys | length > 0
   community.docker.docker_container:
     name: "restore-container-{{ docker_backup_s3_volume.name }}-{{ 10 | random }}"
     image: ubuntu
@@ -88,6 +90,7 @@
       - /tmp:/tmp
 
 - name: Remove uploaded files from /tmp
+  when: s3_list_output.s3_keys | length > 0
   ansible.builtin.file:
     path: '/tmp/{{ container_s3_key }}'
     state: absent
