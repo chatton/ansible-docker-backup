@@ -32,7 +32,7 @@
   when:
     - docker_backup_fail_on_no_s3_backups
     - s3_list_output.s3_keys | length == 0
-  fail:
+  ansible.builtin.fail:
     msg: "There were no s3 backups found for {{ docker_backup_s3_volume.name }}"
 
 - name: Exit early if there are no backups.
