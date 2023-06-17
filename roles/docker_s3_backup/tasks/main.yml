@@ -60,6 +60,7 @@
 
 # try and find latest volume based on the name.
 - name: Fetch Volumes From S3.
+  when: docker_backup_retain_count is defined
   amazon.aws.aws_s3:
     bucket: "{{ docker_backup_aws_s3_bucket }}"
     mode: list
