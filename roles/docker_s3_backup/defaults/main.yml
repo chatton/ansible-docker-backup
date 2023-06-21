@@ -14,3 +14,4 @@ docker_backup_aws_s3_aws_access_key: ""
 docker_backup_aws_s3_aws_secret_key: ""
 docker_backup_aws_s3_permissions: []
 docker_backup_aws_s3_encrypt: true
+docker_backup_keep_local: false
